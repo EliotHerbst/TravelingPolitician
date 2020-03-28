@@ -5,12 +5,14 @@ import pandas
 import selenium
 from selenium import webdriver
 from datetime import datetime
+
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from itertools import permutations
-
+import os
 from Distance import distance
 
 
@@ -23,8 +25,14 @@ def get_zip_code(state_name):
     :rtype: int
     """
     url = "https://google.com"
-    path_to_chromedriver = 'chromedriver.exe'  # Path to access a chrome driver
-    browser = webdriver.Chrome(executable_path=path_to_chromedriver)
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(this_dir, 'chromedriver.exe')
+    path_to_chromedriver = file_path  # Path to access a chrome driver
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    browser = webdriver.Chrome(path_to_chromedriver, options=chrome_options)
     browser.get(url)
     try:
         # Search for Capital
@@ -50,7 +58,9 @@ def get_zip_code(state_name):
         return "101"
 
 
-data_frame = pandas.read_csv('zip-codes-database-FREE.csv')
+this_dir = os.path.dirname(os.path.realpath(__file__))
+file_path = os.path.join(this_dir, 'zip-codes-database-FREE.csv')
+data_frame = pandas.read_csv(file_path)
 
 
 def get_location(zip_code):
