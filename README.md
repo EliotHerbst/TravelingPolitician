@@ -26,7 +26,7 @@ conda install -c conda-forge --name myenv selenium
 
 ### Installing chromedriver 
 
-Depending on your environment you may have to change the chromedriver.exe file. If you already have a chromedriver installed, you can delete this file and set path_to_chromedriver in TravelingPolitician.py equal to the file path ie:
+Depending on your environment you may have to change the chromedriver.exe file. If you already have a chromedriver installed, you can delete this file and set path_to_chromedriver in TravelingPolitician.py equal to the file path for your chromedriver ie:
 ```
 path_to_chromedriver = "Your FilePath Here"
 ```
@@ -36,9 +36,9 @@ The chromedriver.exe file currently in the project is compatible with Windows Sy
 
 #### Linux and Mac
 
-Download the correct chromedriver binaries for you system here: https://chromedriver.storage.googleapis.com/index.html?path=81.0.4044.69/ then extract the chromedriver file and replace chromedriver.exe with it.
+Download the correct chromedriver binaries for your system here: https://chromedriver.storage.googleapis.com/index.html?path=81.0.4044.69/ then extract the chromedriver file and replace chromedriver.exe with it.
 
-In the TravelingPolitician.py file must change file_path to
+In the TravelingPolitician.py file you must change file_path to
 
 ```
 file_path = os.path.join(this_dir, 'chromedriver')
