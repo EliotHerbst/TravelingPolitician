@@ -1,7 +1,6 @@
 import multiprocessing
 import multiprocessing as mp
 from functools import partial
-
 import pandas
 import selenium
 from selenium import webdriver
@@ -24,7 +23,7 @@ def get_zip_code(state_name):
     :rtype: int
     """
     url = "https://google.com"
-    path_to_chromedriver = 'D:\Downloads\chromedriver_win32\chromedriver.exe'  # Path to access a chrome driver
+    path_to_chromedriver = 'chromedriver.exe'  # Path to access a chrome driver
     browser = webdriver.Chrome(executable_path=path_to_chromedriver)
     browser.get(url)
     try:
@@ -181,7 +180,11 @@ def traveling_politician_n(start, middles, end):
 
 
 if __name__ == '__main__':
-    # print("Number of processors: ", mp.cpu_count())
+    print("Number of processors: ", mp.cpu_count())
+    start = input("Starting State: ")
+    middle = input("Comma Delimited Middle States: ")
+    end = input("End State: ")
+    middle_arr = middle.split(",")
     # print(traveling_politician_0('Arkansas', 'Washington D.C.'))
     # print(traveling_politician_1('Utah','California', 'Nebraska'))
-    print(traveling_politician_n('Nevada', ['Oklahoma', 'New Mexico', 'New York', 'Alaska'], 'New Jersey'))
+    print(traveling_politician_n(start, middle_arr, end))
