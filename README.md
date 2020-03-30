@@ -54,6 +54,10 @@ Starting State: Texas
 Comma Delimited Middle States: California,New Mexico,Nevada,Alaska
 End State: New York
 ```
+If you would like to enter Washington D.C. as a location you must input it as
+```
+Washington D.C.
+```
 
 If you would like to see the google searches being performed, you can remove the following three lines in the TravelingPolitician.py file (Some environments will not support this)
 
