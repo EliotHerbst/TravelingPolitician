@@ -13,15 +13,17 @@ https://en.wikipedia.org/wiki/Travelling_salesman_problem
 
 ### Prerequisites
 
-In order to run this file you must have selenium installed. This can be done via the command
+In order to run this file you must have selenium and geopy installed. This can be done via the command
 
 ```
 pip install selenium
+pip install geopy
 ```
 
 In a conda environment selenium can be installed with
 ```
 conda install -c conda-forge --name myenv selenium 
+conda install -c conda-forge geopy
 ```
 
 ### Installing chromedriver 
