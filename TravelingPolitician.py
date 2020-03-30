@@ -1,11 +1,9 @@
 import multiprocessing
-import multiprocessing as mp
 from functools import partial
 import pandas
 import selenium
 from selenium import webdriver
-from datetime import datetime
-
+import geopy.distance
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -13,7 +11,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from itertools import permutations
 import os
-from Distance import distance
 
 
 def get_zip_code(state_name):
@@ -78,34 +75,6 @@ def get_location(zip_code):
 washington_dc_zip_code = 20001
 
 
-# V1.0
-def traveling_politician_0(start, end):
-    path = str(start + '->' + end)
-    coordinates = {}
-    for x in [start, end]:
-        zip_code = washington_dc_zip_code if x == 'Washington D.C.' else get_zip_code(x)
-        location = get_location(zip_code)
-        coordinates[x] = location
-    dist = distance(coordinates[start][0], coordinates[start][1],
-                    coordinates[end][0], coordinates[end][1])
-    return dist, path
-
-
-# V1.1
-def traveling_politician_1(start, middle, end):
-    path = str(start + '->' + middle + '->' + end)
-    coordinates = {}
-    for x in [start, middle, end]:
-        zip_code = washington_dc_zip_code if x == 'Washington D.C.' else get_zip_code(x)
-        location = get_location(zip_code)
-        coordinates[x] = location
-    dist = distance(coordinates[start][0], coordinates[start][1],
-                    coordinates[middle][0], coordinates[middle][1])
-    dist += distance(coordinates[middle][0], coordinates[middle][1],
-                     coordinates[end][0], coordinates[end][1])
-    return dist, path
-
-
 def compute_path_distance(path, coordinates):
     """Returns the distance to traverse the path from start to finish
 
@@ -121,7 +90,7 @@ def compute_path_distance(path, coordinates):
     for x in path:
         coords = coordinates[x]
         if previous_coords is not None:
-            d += distance(coords[0], coords[1], previous_coords[0], previous_coords[1])
+            d += geopy.distance.distance(previous_coords, coords).miles
         previous_coords = coords
     return d
 
@@ -171,7 +140,6 @@ def traveling_politician_n(start, middles, end):
         zip_code = washington_dc_zip_code if x == 'Washington D.C.' else get_zip_code(x)
         location = get_location(zip_code)
         coordinates[x] = location
-
     paths = generate_paths(start, middles, end)
     pool = multiprocessing.Pool()
     partial_paths = partial(compute_path_distance, coordinates=coordinates)
@@ -179,7 +147,7 @@ def traveling_politician_n(start, middles, end):
     smallest_distance = lengths[0]
     smallest_path = paths[0]
     for x in range(len(lengths)):
-        if smallest_distance > lengths[x]:
+        if float(smallest_distance) > float(lengths[x]):
             smallest_distance = lengths[x]
             smallest_path = paths[x]
 
@@ -190,11 +158,8 @@ def traveling_politician_n(start, middles, end):
 
 
 if __name__ == '__main__':
-    print("Number of processors: ", mp.cpu_count())
     start = input("Starting State: ")
     middle = input("Comma Delimited Middle States: ")
     end = input("End State: ")
     middle_arr = middle.split(",")
-    # print(traveling_politician_0('Arkansas', 'Washington D.C.'))
-    # print(traveling_politician_1('Utah','California', 'Nebraska'))
     print(traveling_politician_n(start, middle_arr, end))
