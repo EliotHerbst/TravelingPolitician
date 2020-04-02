@@ -13,15 +13,17 @@ https://en.wikipedia.org/wiki/Travelling_salesman_problem
 
 ### Prerequisites
 
-In order to run this file you must have selenium installed. This can be done via the command
+In order to run this file you must have selenium and geopy installed. This can be done via the command
 
 ```
 pip install selenium
+pip install geopy
 ```
 
 In a conda environment selenium can be installed with
 ```
 conda install -c conda-forge --name myenv selenium 
+conda install -c conda-forge geopy
 ```
 
 ### Installing chromedriver 
@@ -51,6 +53,10 @@ When running you will be asked for a starting state, middle states and end state
 Starting State: Texas
 Comma Delimited Middle States: California,New Mexico,Nevada,Alaska
 End State: New York
+```
+If you would like to enter Washington D.C. as a location you must input it as
+```
+Washington D.C.
 ```
 
 If you would like to see the google searches being performed, you can remove the following three lines in the TravelingPolitician.py file (Some environments will not support this)
