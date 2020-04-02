@@ -10,7 +10,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from itertools import permutations
+import json
+import sys
 import os
+import warnings
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def get_zip_code(state_name):
@@ -26,9 +31,6 @@ def get_zip_code(state_name):
     file_path = os.path.join(this_dir, 'chromedriver.exe')
     path_to_chromedriver = file_path  # Path to access a chrome driver
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
     browser = webdriver.Chrome(path_to_chromedriver, options=chrome_options)
     browser.get(url)
     try:
@@ -38,16 +40,25 @@ def get_zip_code(state_name):
         search = browser.find_element_by_name('q')
         search.send_keys("Capital of " + state_name + " State")
         search.send_keys(Keys.RETURN)
-        wait.until(ec.presence_of_all_elements_located((By.CLASS_NAME, 'FLP8od')))
+        wait.until((ec.presence_of_all_elements_located((By.CLASS_NAME, 'FLP8od'))))
         capital = browser.find_element_by_class_name('FLP8od').text
         # Search for Zip
         browser.get(url)
         wait.until(ec.presence_of_element_located((By.NAME, 'q')))
         search = browser.find_element_by_name('q')
-        search.send_keys(capital + " Zip Code")
+        search.send_keys(capital + " Zip Codes")
         search.send_keys(Keys.RETURN)
-        wait.until(ec.presence_of_all_elements_located((By.CLASS_NAME, 'TZNJBf')))
-        zip_code = browser.find_element_by_class_name('TZNJBf')
+        wait.until(
+            lambda driver: driver.find_elements(By.CLASS_NAME, 'TZNJBf') or driver.find_elements(By.CLASS_NAME,
+                                                                                                 'junCMe')
+        )
+        zip_code = None
+        if len(browser.find_elements(By.CLASS_NAME, 'TZNJBf')) > 0:
+            zip_code = browser.find_elements_by_class_name('TZNJBf')[0]
+        elif len(browser.find_elements(By.CLASS_NAME, 'junCMe')) > 0:
+            zip_code = zip_code = browser.find_elements_by_class_name('junCMe')[0]
+        else:
+            print("Error")
         return int(zip_code.text)
     except selenium.common.exceptions.TimeoutException:
         browser.quit()
@@ -133,11 +144,11 @@ def traveling_politician_n(start, middles, end):
     path = ""
     coordinates = {}
     for x in [start, end]:
-        zip_code = washington_dc_zip_code if x == 'Washington D.C.' else get_zip_code(x)
+        zip_code = washington_dc_zip_code if str(x) == 'Washington D.C.' else get_zip_code(x)
         location = get_location(zip_code)
         coordinates[x] = location
     for x in middles:
-        zip_code = washington_dc_zip_code if x == 'Washington D.C.' else get_zip_code(x)
+        zip_code = washington_dc_zip_code if str(x) == 'Washington D.C.' else get_zip_code(x)
         location = get_location(zip_code)
         coordinates[x] = location
     paths = generate_paths(start, middles, end)
@@ -150,7 +161,6 @@ def traveling_politician_n(start, middles, end):
         if float(smallest_distance) > float(lengths[x]):
             smallest_distance = lengths[x]
             smallest_path = paths[x]
-
     for n in smallest_path:
         path += n + "->"
     path = path[0: -2]
@@ -158,8 +168,19 @@ def traveling_politician_n(start, middles, end):
 
 
 if __name__ == '__main__':
-    start = input("Starting State: ")
-    middle = input("Comma Delimited Middle States: ")
-    end = input("End State: ")
-    middle_arr = middle.split(",")
-    print(traveling_politician_n(start, middle_arr, end))
+    data = None
+    with open(sys.argv[1]) as json_data:
+        data = json.load(json_data)
+    if data is None:
+        print("Error: Could not read JSON")
+    start = data['start']
+    middle = data['middle']
+    middle = middle.split(',')
+    end = data['end']
+    solution = traveling_politician_n(start, middle, end)
+    solution_dict = {'Total Distance': solution[0], 'Path': solution[1]}
+    f = None
+    with sys.argv[2] as path:
+        f = open(file_path, 'w+')
+    json.dump(solution_dict, f, indent=4)
+    f.close()
