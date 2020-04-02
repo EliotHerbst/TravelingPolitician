@@ -48,15 +48,41 @@ file_path = os.path.join(this_dir, 'chromedriver')
 
 ### Running
 
-When running you will be asked for a starting state, middle states and end states. Though a variety of input will be excepted as the input is used to perform google searches, it is best to capitalize the first letter of each state name. This middle states must be entered seperate by commas, and it is best to not put spaces before or after the commas. An example for input is
+#### Windows
+Open the command line (cmd) and enter the following command
 ```
-Starting State: Texas
-Comma Delimited Middle States: California,New Mexico,Nevada,Alaska
-End State: New York
+py YOURFILELOCATION/TravelingPolitician.py YOURJSONINPUTLOCATION YOURDESIREDOUTPUTLOCATION
 ```
-If you would like to enter Washington D.C. as a location you must input it as
+#### Linux and Mac
+Run the following command from terminal
 ```
-Washington D.C.
+python3 YOURFILELOCATION/TravelingPolitician.py YOURJSONINPUTLOCATION YOURDESIREDOUTPUTLOCATION
+```
+If you are using linux and you would like to avoid explicity calling the interpreter you can add #!/usr/bin/env python as the first line of TravelingPolitician.py and enter the following command
+```
+chmod +x YOURFILELOCATION.py
+```
+It can then be run as
+```
+./YOURFILELOCATION.py YOURJSONINPUTLOCATION YOURDESIREDOUTPUTLOCATION
+```
+
+Take care when specifying the desired output location as if a file already exists in that location it will be overwritten.
+
+The JSON input should be formatted as follows
+```
+{
+  "start": "Starting State",
+  "middle": "Middle States Seperated by a Comma",
+  "end" :  "Ending States"
+}
+```
+The JSON output will be in the following form
+```
+{
+    "Total Distance": Total Distance as a numeric value,
+    "Path": "The Path from start to finish with each state seperated by a ->"
+}
 ```
 
 If you would like to see the google searches being performed, you can remove the following three lines in the TravelingPolitician.py file (Some environments will not support this)
@@ -69,4 +95,3 @@ chrome_options.add_argument('--disable-dev-shm-usage')
 
 ### Authors 
 * **Eliot Herbst** - *TravelingPolitician.py* - https://github.com/EliotHerbst
-* **Verbus Counts** - *Distance.py* - https://github.com/verbus
