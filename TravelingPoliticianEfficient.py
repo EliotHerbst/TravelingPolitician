@@ -78,6 +78,13 @@ def get_location(z):
 
 
 def distance_matrix(end, middles, coordinates):
+    """Intenal method for creating distance matrix with dummy node
+
+    :param end: end location
+    :param middles: array of middles
+    :param coordinates: dict of name to coordinate
+    :return: distance matrix
+    """
     mat = []
     for x in middles:
         local = []
@@ -192,19 +199,37 @@ def traveling_politician_n(start, middles, end):
 
 
 if __name__ == '__main__':
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    log_path = os.path.join(this_dir, 'log.txt')
+    log = open(log_path, 'a+')
+    log.write('\n')
     data = None
-    with open(sys.argv[1]) as json_data:
-        data = json.load(json_data)
-    if data is None:
-        print("Error: Could not read JSON")
-    start = data['start']
-    middle = data['middle']
-    middle = middle.split(',')
-    end = data['end']
-    solution = traveling_politician_n(start, middle, end)
-    solution_dict = {'Input': data, 'Total Distance': solution[0], 'Path': solution[1]}
-    f = None
-    with sys.argv[2] as path:
-        f = open(file_path, 'w+')
-    json.dump(solution_dict, f, indent=4)
-    f.close()
+    log.write('Args: ' + str(sys.argv) + ' ')
+    try:
+        with open(sys.argv[1]) as json_data:
+            data = json.load(json_data)
+        if data is None:
+            print("Error: Could not read JSON")
+        start = data['start']
+        middle = data['middle']
+        middle = middle.split(',')
+        end = data['end']
+        solution = traveling_politician_n(start, middle, end)
+        solution_dict = {'Input': data, 'Total Distance': solution[0], 'Path': solution[1]}
+        log.write('solution:' + str(solution_dict) + ' ')
+        f = None
+        path = sys.argv[2]
+        f = open(path, 'w+')
+        json.dump(solution_dict, f, indent=4)
+        f.close()
+    except ValueError as err:
+        log.write(str(err))
+    except OSError as err:
+        log.write(str(err))
+    except NameError as err:
+        log.write(str(err))
+    except TimeoutError as err:
+        log.write(str(err))
+    except:
+        log.write("Unknown Error")
+        raise

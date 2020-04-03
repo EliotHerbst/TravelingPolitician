@@ -1,4 +1,21 @@
 {
-    "Total Distance": 16035.798330195137,
-    "Path": "New York->Alabama->Texas->California->New Jersey"
+    "Input": {
+        "start": "Iowa",
+        "middle": "Alabama,California,Texas,New Mexico,Nevada,New York,Connecticut,Washington,Oregon",
+        "end": "Washington D.C."
+    },
+    "Total Distance": 5660.164409922557,
+    "Path": [
+        "Iowa",
+        "Washington",
+        "Oregon",
+        "California",
+        "Nevada",
+        "New Mexico",
+        "Texas",
+        "Alabama",
+        "New York",
+        "Connecticut",
+        "Washington D.C."
+    ]
 }
