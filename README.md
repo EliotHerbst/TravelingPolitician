@@ -7,41 +7,23 @@ This problem is based on the “Traveling Salesman Problem”, which is a well-k
 
 https://en.wikipedia.org/wiki/Travelling_salesman_problem
 
+This solution makes use of the Held-Karp Algorithm to find solutions in O(2^n\*n^2) rather than O(n!) time.
+
 ## Getting Started 
 
 ### Prerequisites
 
-In order to run this file you must have selenium and geopy installed. This can be done via the command
+In order to run this file you must have pandas and geopy installed. This can be done via the command
 
 ```
-pip install selenium
+pip install pandas
 pip install geopy
 ```
 
 In a conda environment selenium can be installed with
 ```
-conda install -c conda-forge --name myenv selenium 
+conda install -c conda-forge --name myenv pandas
 conda install -c conda-forge geopy
-```
-
-### Installing chromedriver 
-
-Depending on your environment you may have to change the chromedriver.exe file. If you already have a chromedriver installed, you can delete this file and set path_to_chromedriver in TravelingPolitician.py equal to the file path for your chromedriver ie:
-```
-path_to_chromedriver = "Your FilePath Here"
-```
-
-#### Windows
-The chromedriver.exe file currently in the project is compatible with Windows Systems
-
-#### Linux and Mac
-
-Download the correct chromedriver binaries for your system here: https://chromedriver.storage.googleapis.com/index.html?path=81.0.4044.69/ then extract the chromedriver file and replace chromedriver.exe with it.
-
-In the TravelingPolitician.py file you must change file_path to
-
-```
-file_path = os.path.join(this_dir, 'chromedriver')
 ```
 
 ### Running
@@ -78,19 +60,30 @@ The JSON input should be formatted as follows
 The JSON output will be in the following form
 ```
 {
-    "Total Distance": Total Distance as a numeric value,
-    "Path": "The Path from start to finish with each state seperated by a ->"
+    "Input": {
+        "start": "Iowa",
+        "middle": "Alabama,California,Texas,New Mexico,Nevada,New York,Connecticut,Washington,Oregon",
+        "end": "Washington D.C."
+    },
+    "Total Distance": 5660.164409922557,
+    "Path": [
+        "Iowa",
+        "Washington",
+        "Oregon",
+        "California",
+        "Nevada",
+        "New Mexico",
+        "Texas",
+        "Alabama",
+        "New York",
+        "Connecticut",
+        "Washington D.C."
+    ]
 }
-```
-
-If you would like to see the google searches being performed, you can remove the following three lines in the TravelingPolitician.py file (Some environments will not support this)
-
-```
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--disable-dev-shm-usage')
 ```
 
 ### Authors 
 * **Eliot Herbst** - *TravelingPolitician.py* - https://github.com/EliotHerbst
 * **Verbus Counts** - https://github.com/verbus
+* **Carl Ekerot** - Implementation of Held-Karp algorith - https://github.com/CarlEkerot/held-karp/blob/master/held-karp.py
+* **Trevor R**
