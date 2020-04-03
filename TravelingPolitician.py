@@ -31,6 +31,9 @@ def get_zip_code(state_name):
     file_path = os.path.join(this_dir, 'chromedriver.exe')
     path_to_chromedriver = file_path  # Path to access a chrome driver
     chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
     browser = webdriver.Chrome(path_to_chromedriver, options=chrome_options)
     browser.get(url)
     try:
@@ -81,9 +84,6 @@ def get_location(zip_code):
     """
     df = data_frame[data_frame['ZipCode'] == zip_code]
     return df['Latitude'].values, df['Longitude'].values
-
-
-washington_dc_zip_code = 20001
 
 
 def compute_path_distance(path, coordinates):
@@ -141,15 +141,15 @@ def traveling_politician_n(start, middles, end):
     :return: solution for traveling politician problem
     :rtype: tuple of smallest distance, path
     """
-    path = ""
     coordinates = {}
+    path = ""
     for x in [start, end]:
-        zip_code = washington_dc_zip_code if str(x) == 'Washington D.C.' else get_zip_code(x)
-        location = get_location(zip_code)
+        z_code = get_zip_code(x)
+        location = get_location(z_code)
         coordinates[x] = location
     for x in middles:
-        zip_code = washington_dc_zip_code if str(x) == 'Washington D.C.' else get_zip_code(x)
-        location = get_location(zip_code)
+        z_code = get_zip_code(x)
+        location = get_location(z_code)
         coordinates[x] = location
     paths = generate_paths(start, middles, end)
     pool = multiprocessing.Pool()
