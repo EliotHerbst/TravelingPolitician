@@ -1,132 +1,169 @@
-import multiprocessing
-from functools import partial
-import pandas
-import selenium
-from selenium import webdriver
-import geopy.distance
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
-from itertools import permutations
-import json
-import sys
+import itertools
 import os
-import warnings
+import sys
+import json
+import geopy.distance
+import pandas
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
-
-
-def get_zip_code(state_name):
-    """Returns zip code of the state capital
-
-    :param state_name: Name of state
-    :type state_name: str
-    :return: Zip Code of state capital
-    :rtype: int
-    """
-    url = "https://google.com"
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(this_dir, 'chromedriver.exe')
-    path_to_chromedriver = file_path  # Path to access a chrome driver
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    browser = webdriver.Chrome(path_to_chromedriver, options=chrome_options)
-    browser.get(url)
-    try:
-        # Search for Capital
-        wait = WebDriverWait(browser, 10)
-        wait.until(ec.presence_of_element_located((By.NAME, 'q')))
-        search = browser.find_element_by_name('q')
-        search.send_keys("Capital of " + state_name + " State")
-        search.send_keys(Keys.RETURN)
-        wait.until((ec.presence_of_all_elements_located((By.CLASS_NAME, 'FLP8od'))))
-        capital = browser.find_element_by_class_name('FLP8od').text
-        # Search for Zip
-        browser.get(url)
-        wait.until(ec.presence_of_element_located((By.NAME, 'q')))
-        search = browser.find_element_by_name('q')
-        search.send_keys(capital + " Zip Codes")
-        search.send_keys(Keys.RETURN)
-        wait.until(
-            lambda driver: driver.find_elements(By.CLASS_NAME, 'TZNJBf') or driver.find_elements(By.CLASS_NAME,
-                                                                                                 'junCMe')
-        )
-        zip_code = None
-        if len(browser.find_elements(By.CLASS_NAME, 'TZNJBf')) > 0:
-            zip_code = browser.find_elements_by_class_name('TZNJBf')[0]
-        elif len(browser.find_elements(By.CLASS_NAME, 'junCMe')) > 0:
-            zip_code = zip_code = browser.find_elements_by_class_name('junCMe')[0]
-        else:
-            print("Error")
-        return int(zip_code.text)
-    except selenium.common.exceptions.TimeoutException:
-        browser.quit()
-        print("Error")
-        return "101"
-
+zip_code = {
+    'Alabama': 36043,
+    'Alaska': 99801,
+    'Arizona': 85001,
+    "Arkansas": 72201,
+    "California": 94203,
+    "Colorado": 80201,
+    "Connecticut": 6101,
+    "Delaware": 19901,
+    "Florida": 32301,
+    "Georgia": 30301,
+    "Hawaii": 96801,
+    "Idaho": 83701,
+    "Illinois": 62701,
+    "Indiana": 46201,
+    "Iowa": 50301,
+    "Kansas": 66601,
+    "Kentucky": 40601,
+    "Louisiana": 70801,
+    "Maine": 4330,
+    "Maryland": 21401,
+    "Massachusetts": 2108,
+    "Michigan": 48901,
+    "Minnesota": 55101,
+    "Mississippi": 39201,
+    "Missouri": 65101,
+    "Montana": 59601,
+    "Nebraska": 68501,
+    "Nevada": 89701,
+    "New Hampshire": 3301,
+    "New Jersey": 8601,
+    "New Mexico": 87501,
+    "New York": 12201,
+    "North Carolina": 27601,
+    "North Dakota": 58501,
+    "Ohio": 43201,
+    "Oklahoma": 73101,
+    "Oregon": 97301,
+    "Pennsylvania": 17101,
+    "Rhode Island": 2901,
+    "South Carolina": 29201,
+    "South Dakota": 57501,
+    "Tennessee": 37201,
+    "Texas": 73301,
+    "Utah": 84101,
+    "Vermont": 5601,
+    "Virginia": 23218,
+    "Washington": 98501,
+    "West Virginia": 25301,
+    "Wisconsin": 53701,
+    "Wyoming": 82001,
+    "Washington D.C.": 20500
+}
 
 this_dir = os.path.dirname(os.path.realpath(__file__))
 file_path = os.path.join(this_dir, 'zip-codes-database-FREE.csv')
 data_frame = pandas.read_csv(file_path)
 
 
-def get_location(zip_code):
+def get_location(z):
     """Returns the latitude and longitude of a zip code
 
-    :param zip_code: Zip Code of Location
-    :type zip_code: int
+    :param z: Zip Code of Location
+    :type z: int
     :return: Coordinates of location
     :rtype: tuple of latitude, longitude
     """
-    df = data_frame[data_frame['ZipCode'] == zip_code]
+    df = data_frame[data_frame['ZipCode'] == z]
     return df['Latitude'].values, df['Longitude'].values
 
 
-def compute_path_distance(path, coordinates):
-    """Returns the distance to traverse the path from start to finish
+def distance_matrix(end, middles, coordinates):
+    """Intenal method for creating distance matrix with dummy node
 
-    :param path: The state names in order
-    :type path: list of string
-    :param coordinates: A dictionary of state names to coordinates
-    :type coordinates: dict of string to tuple
-    :return: The distance
-    :rtype: numeric value
+    :param end: end location
+    :param middles: array of middles
+    :param coordinates: dict of name to coordinate
+    :return: distance matrix
     """
-    d = 0
-    previous_coords = None
-    for x in path:
-        coords = coordinates[x]
-        if previous_coords is not None:
-            d += geopy.distance.distance(previous_coords, coords).miles
-        previous_coords = coords
-    return d
+    mat = []
+    for x in middles:
+        local = []
+        if x is end:
+            for y in middles:
+                local.append(geopy.distance.distance(coordinates[x], coordinates[y]).miles)
+            local.append(float(0))
+        else:
+            for y in middles:
+                local.append(geopy.distance.distance(coordinates[x], coordinates[y]).miles)
+            local.append(float('inf'))
+        mat.append(local)
+    local = [float(0)]
+    for i in range(len(middles) - 1):
+        local.append(float('inf'))
+    mat.append(local)
+    return mat
 
 
-def generate_paths(start, middles, end):
-    """Generates all possible permutations of paths
-
-    :param start: Name of first state
-    :type start: str
-    :param middles: Middle state names
-    :type middles: list of str
-    :param end: Final state
-    :type end: str
-    :return: All permutations of paths
-    :rtype: list of list of string
+def held_karp(dists):
     """
-    paths = []
-    perms = list(permutations(middles))
-    for perm in perms:
-        ap = [start]
-        for x in perm:
-            ap.append(x)
-        ap.append(end)
-        paths.append(ap)
-    return paths
+    Implementation of Held-Karp, an algorithm that solves the Traveling
+    Salesman Problem using dynamic programming with memoization. Written by CarlEkerot
+    Parameters:
+        dists: distance matrix
+    Returns:
+        A tuple, (cost, path).
+    """
+    n = len(dists)
+
+    # Maps each subset of the nodes to the cost to reach that subset, as well
+    # as what node it passed before reaching this subset.
+    # Node subsets are represented as set bits.
+    C = {}
+
+    # Set transition cost from initial state
+    for k in range(1, n):
+        C[(1 << k, k)] = (dists[0][k], 0)
+
+    # Iterate subsets of increasing length and store intermediate results
+    # in classic dynamic programming manner
+    for subset_size in range(2, n):
+        for subset in itertools.combinations(range(1, n), subset_size):
+            # Set bits for all nodes in this subset
+            bits = 0
+            for bit in subset:
+                bits |= 1 << bit
+
+            # Find the lowest cost to get to this subset
+            for k in subset:
+                prev = bits & ~(1 << k)
+
+                res = []
+                for m in subset:
+                    if m == 0 or m == k:
+                        continue
+                    res.append((C[(prev, m)][0] + dists[m][k], m))
+                C[(bits, k)] = min(res)
+
+    # We're interested in all bits but the least significant (the start state)
+    bits = (2 ** n - 1) - 1
+
+    # Calculate optimal cost
+    res = []
+    for k in range(1, n):
+        res.append((C[(bits, k)][0] + dists[k][0], k))
+    opt, parent = min(res)
+
+    # Backtrack to find full path
+    path = []
+    for i in range(n - 1):
+        path.append(parent)
+        new_bits = bits & ~(1 << parent)
+        _, parent = C[(bits, parent)]
+        bits = new_bits
+
+    # Add implicit start state
+    path.append(0)
+
+    return opt, list(reversed(path))
 
 
 def traveling_politician_n(start, middles, end):
@@ -142,45 +179,56 @@ def traveling_politician_n(start, middles, end):
     :rtype: tuple of smallest distance, path
     """
     coordinates = {}
-    path = ""
-    for x in [start, end]:
-        z_code = get_zip_code(x)
-        location = get_location(z_code)
-        coordinates[x] = location
+
+    middles.insert(0, start)
+    middles.append(end)
     for x in middles:
-        z_code = get_zip_code(x)
+        z_code = zip_code[x]
         location = get_location(z_code)
         coordinates[x] = location
-    paths = generate_paths(start, middles, end)
-    pool = multiprocessing.Pool()
-    partial_paths = partial(compute_path_distance, coordinates=coordinates)
-    lengths = pool.map(partial_paths, paths)
-    smallest_distance = lengths[0]
-    smallest_path = paths[0]
-    for x in range(len(lengths)):
-        if float(smallest_distance) > float(lengths[x]):
-            smallest_distance = lengths[x]
-            smallest_path = paths[x]
-    for n in smallest_path:
-        path += n + "->"
-    path = path[0: -2]
-    return smallest_distance, path
+    dist_mat = distance_matrix(end, middles, coordinates)
+    sol = held_karp(dist_mat)
+    length = sol[0]
+    order = sol[1]
+    name_order = []
+    for x in order:
+        if x < len(middles):
+            name_order.append(middles[x])
+    return length, name_order
 
 
 if __name__ == '__main__':
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    log_path = os.path.join(this_dir, 'log.txt')
+    log = open(log_path, 'a+')
+    log.write('\n')
     data = None
-    with open(sys.argv[1]) as json_data:
-        data = json.load(json_data)
-    if data is None:
-        print("Error: Could not read JSON")
-    start = data['start']
-    middle = data['middle']
-    middle = middle.split(',')
-    end = data['end']
-    solution = traveling_politician_n(start, middle, end)
-    solution_dict = {'Total Distance': solution[0], 'Path': solution[1]}
-    f = None
-    with sys.argv[2] as path:
-        f = open(file_path, 'w+')
-    json.dump(solution_dict, f, indent=4)
-    f.close()
+    log.write('Args: ' + str(sys.argv) + ' ')
+    try:
+        with open(sys.argv[1]) as json_data:
+            data = json.load(json_data)
+        if data is None:
+            print("Error: Could not read JSON")
+        start = data['start']
+        middle = data['middle']
+        middle = middle.split(',')
+        end = data['end']
+        solution = traveling_politician_n(start, middle, end)
+        solution_dict = {'Input': data, 'Total Distance': solution[0], 'Path': solution[1]}
+        log.write('solution:' + str(solution_dict) + ' ')
+        f = None
+        path = sys.argv[2]
+        f = open(path, 'w+')
+        json.dump(solution_dict, f, indent=4)
+        f.close()
+    except ValueError as err:
+        log.write(str(err))
+    except OSError as err:
+        log.write(str(err))
+    except NameError as err:
+        log.write(str(err))
+    except TimeoutError as err:
+        log.write(str(err))
+    except:
+        log.write("Unknown Error")
+        raise

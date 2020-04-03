@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2da024e7-fbb1-4ee2-9c16-39c2545fd526" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TravelingPoliticianEfficient.py" beforeDir="false" afterPath="$PROJECT_DIR$/TravelingPoliticianEfficient.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input-example.json" beforeDir="false" afterPath="$PROJECT_DIR$/input-example.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solution-example.json" beforeDir="false" afterPath="$PROJECT_DIR$/solution-example.json" afterDir="false" />
-    </list>
+    <list default="true" id="2da024e7-fbb1-4ee2-9c16-39c2545fd526" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -69,7 +64,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="TravelingPoliticianEfficient" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="TravelingPolitician" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="TravelingPolitician" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -81,7 +76,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TravelingPoliticianEfficient.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\18325\PycharmProjects\TravelingPolitician\TravelingPolitician.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
